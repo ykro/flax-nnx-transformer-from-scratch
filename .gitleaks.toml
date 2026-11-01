@@ -1,0 +1,11 @@
+title = "Gitleaks Configuration for flax-nnx-transformer-from-scratch"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for public benchmark results and SVG diagrams"
+paths = [
+  '''diagrams/.*\.(html|svg|png)$''',
+  '''benchmarks/latest_results\.json$''',
+]

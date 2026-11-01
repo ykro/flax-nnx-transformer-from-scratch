@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-diagram="architecture-delta" viewBox="0 0 1120 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="linen-vs-nnx-title linen-vs-nnx-desc" id="d-01-linen-vs-nnx-root">
+        <title id="linen-vs-nnx-title">Flax Linen vs Flax NNX Architecture Delta</title>
+        <desc id="linen-vs-nnx-desc">Comparison of legacy Flax Linen stateless init/apply dictionaries against Flax NNX stateful Python modules with direct nnx.Param attributes and nnx.Rngs.</desc>
+        <defs>
+      <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;family=Noto+Serif:ital@0;1&amp;family=Noto+Sans+KR:wght@400;500;600&amp;family=Noto+Serif+KR:wght@400&amp;family=Noto+Sans+TC:wght@400;500;600&amp;family=Noto+Serif+TC:wght@400&amp;display=swap');
+      #d-01-linen-vs-nnx-root { --color-paper:   #F7F6F2;
+      --color-paper-2: #EFECE6;
+      --color-ink:     #0F2547;
+      --color-muted:   #3B5B8C;
+      --color-accent:  #C59216;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace; }
+      #d-01-linen-vs-nnx-root { font-family: var(--font-sans); color: var(--color-ink); }
+      #d-01-linen-vs-nnx-root .diagram-container { width: 100%; overflow-x: auto; }
+      #d-01-linen-vs-nnx-root .diagram-container { overflow-x: visible; }</style>
+          <pattern id="d-01-linen-vs-nnx-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="0.85" fill="#0f2547" fill-opacity="0.10"/>
+          </pattern>
+          <marker id="d-01-linen-vs-nnx-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#3B5B8C"/>
+          </marker>
+          <marker id="d-01-linen-vs-nnx-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#C59216"/>
+          </marker>
+        </defs>
+
+        <rect width="1120" height="620" fill="#F7F6F2"/>
+        <rect width="1120" height="620" fill="url(#d-01-linen-vs-nnx-dots)" opacity="0.55"/>
+
+        <!-- Panel Chrome & Headers (Outside Snapshots) -->
+        <rect x="24" y="48" width="352" height="480" rx="8" fill="#EFECE6" stroke="#0f2547" stroke-opacity="0.16" stroke-width="1"/>
+        <text x="44" y="34" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="11" font-weight="600" letter-spacing="0.12em">BEFORE · FLAX LINEN (STATELESS)</text>
+
+        <rect x="400" y="48" width="320" height="480" rx="8" fill="#F7F6F2" stroke="#0f2547" stroke-opacity="0.16" stroke-width="1"/>
+        <text x="420" y="34" fill="#9A6F0B" font-family="'Geist Mono', monospace" font-size="11" font-weight="600" letter-spacing="0.12em">CHANGES · TOPOLOGY LEDGER</text>
+
+        <rect x="744" y="48" width="352" height="480" rx="8" fill="#EFECE6" stroke="#0f2547" stroke-opacity="0.16" stroke-width="1"/>
+        <text x="764" y="34" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="11" font-weight="600" letter-spacing="0.12em">AFTER · FLAX NNX (STATEFUL)</text>
+
+        <!-- BEFORE SNAPSHOT: Flax Linen -->
+        <g data-snapshot="before" data-grid="352 480 4" transform="translate(24 48)">
+          <!-- Relationships first -->
+          <path data-kind="relationship" data-object-id="rel-rng-to-mod" data-status="changed"
+                data-signature="rng:manual-split-dict" data-from="rng-source" data-to="module-core"
+                d="M 176 96 V 144" fill="none" stroke="#3B5B8C" stroke-width="1.2" marker-end="url(#d-01-linen-vs-nnx-arrow)"/>
+          <path data-kind="relationship" data-object-id="rel-init-dict" data-status="removed"
+                data-signature="init:returns-external-frozen-dict" data-from="module-core" data-to="ext-params-dict"
+                d="M 176 224 V 272" fill="none" stroke="#3B5B8C" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#d-01-linen-vs-nnx-arrow)"/>
+          <path data-kind="relationship" data-object-id="rel-dict-to-xla" data-status="removed"
+                data-signature="apply:passes-params-dict" data-from="ext-params-dict" data-to="xla-step"
+                d="M 176 344 V 384" fill="none" stroke="#3B5B8C" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#d-01-linen-vs-nnx-arrow)"/>
+
+          <!-- Components -->
+          <g data-kind="component" data-object-id="rng-source" data-status="changed"
+             data-signature="rng:manual-jax-random-split">
+            <rect data-role="bounds" x="48" y="24" width="256" height="72" rx="6" fill="#F7F6F2" stroke="#0F2547" stroke-width="1.2"/>
+            <text x="64" y="48" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">Δ PRNG · rng-source</text>
+            <text x="64" y="68" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">Manual jax.random.split</text>
+            <text x="64" y="84" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="10">{"params": k1, "dropout": k2}</text>
+          </g>
+
+          <g data-kind="component" data-object-id="module-core" data-status="changed"
+             data-signature="module:linen-stateless-spec">
+            <rect data-role="bounds" x="48" y="144" width="256" height="80" rx="6" fill="#F7F6F2" stroke="#0F2547" stroke-width="1.2"/>
+            <text x="64" y="168" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">Δ MODULE · module-core</text>
+            <text x="64" y="188" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">Stateless nn.Module Spec</text>
+            <text x="64" y="206" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="10">model.init(rng, dummy_x)</text>
+          </g>
+
+          <g data-kind="component" data-object-id="ext-params-dict" data-status="removed"
+             data-signature="state:external-frozen-dict">
+            <rect data-role="bounds" x="48" y="272" width="256" height="72" rx="6" fill="#F7F6F2" stroke="#3B5B8C" stroke-width="1.2" stroke-dasharray="5,4"/>
+            <text x="64" y="294" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">− REMOVED · ext-params-dict</text>
+            <text x="64" y="314" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">Detached FrozenDict Tree</text>
+            <text x="64" y="330" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="10">variables["params"]["dense"]</text>
+          </g>
+
+          <g data-kind="component" data-object-id="xla-step" data-status="changed"
+             data-signature="step:stateless-apply-tx">
+            <rect data-role="bounds" x="48" y="384" width="256" height="72" rx="6" fill="#F7F6F2" stroke="#0F2547" stroke-width="1.2"/>
+            <text x="64" y="406" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">Δ STEP · xla-step</text>
+            <text x="64" y="426" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">model.apply({'params': p}, x)</text>
+            <text x="64" y="442" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="10">TrainState.create(apply_fn, ...)</text>
+          </g>
+        </g>
+
+        <!-- AFTER SNAPSHOT: Flax NNX -->
+        <g data-snapshot="after" data-grid="352 480 4" transform="translate(744 48)">
+          <!-- Relationships first -->
+          <path data-kind="relationship" data-object-id="rel-rng-to-mod" data-status="changed"
+                data-signature="rng:stateful-nnx-rngs-stream" data-from="rng-source" data-to="module-core"
+                d="M 176 96 V 144" fill="none" stroke="#C59216" stroke-width="1.4" marker-end="url(#d-01-linen-vs-nnx-arrow-accent)"/>
+          <path data-kind="relationship" data-object-id="rel-mod-to-bridge" data-status="added"
+                data-signature="split:extract-graphdef-and-state" data-from="module-core" data-to="split-merge-bridge"
+                d="M 176 224 V 272" fill="none" stroke="#C59216" stroke-width="1.4" marker-end="url(#d-01-linen-vs-nnx-arrow-accent)"/>
+          <path data-kind="relationship" data-object-id="rel-bridge-to-xla" data-status="added"
+                data-signature="jit:compiled-nnx-jit-step" data-from="split-merge-bridge" data-to="xla-step"
+                d="M 176 344 V 384" fill="none" stroke="#3B5B8C" stroke-width="1.2" marker-end="url(#d-01-linen-vs-nnx-arrow)"/>
+
+          <!-- Components -->
+          <g data-kind="component" data-object-id="rng-source" data-status="changed"
+             data-signature="rng:nnx-rngs-stream-object">
+            <rect data-role="bounds" x="48" y="24" width="256" height="72" rx="6" fill="#F7F6F2" stroke="#0F2547" stroke-width="1.2"/>
+            <text x="64" y="48" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">Δ PRNG · rng-source</text>
+            <text x="64" y="68" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">Stateful nnx.Rngs Streams</text>
+            <text x="64" y="84" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="10">nnx.Rngs(params=42, dropout=0)</text>
+          </g>
+
+          <g data-kind="component" data-object-id="module-core" data-status="changed"
+             data-signature="module:nnx-stateful-python-instance">
+            <rect data-role="bounds" x="48" y="144" width="256" height="80" rx="6" fill="#c59216" fill-opacity="0.12" stroke="#C59216" stroke-width="1.8"/>
+            <text x="64" y="168" fill="#9A6F0B" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">Δ FOCAL · module-core</text>
+            <text x="64" y="188" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">Stateful nnx.Module Instance</text>
+            <text x="64" y="206" fill="#9A6F0B" font-family="'Geist Mono', monospace" font-size="10">model.w_gate.kernel[...] · nnx.Param</text>
+          </g>
+
+          <g data-kind="component" data-object-id="split-merge-bridge" data-status="added"
+             data-signature="bridge:nnx-split-merge-graphdef-state">
+            <rect data-role="bounds" x="48" y="272" width="256" height="72" rx="6" fill="#c59216" fill-opacity="0.12" stroke="#C59216" stroke-width="1.5"/>
+            <text x="64" y="294" fill="#9A6F0B" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">+ ADDED · split-merge-bridge</text>
+            <text x="64" y="314" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">nnx.split / nnx.merge Bridge</text>
+            <text x="64" y="330" fill="#9A6F0B" font-family="'Geist Mono', monospace" font-size="10">(GraphDef, State) PyTree</text>
+          </g>
+
+          <g data-kind="component" data-object-id="xla-step" data-status="changed"
+             data-signature="step:nnx-jit-and-nnx-optimizer">
+            <rect data-role="bounds" x="48" y="384" width="256" height="72" rx="6" fill="#F7F6F2" stroke="#0F2547" stroke-width="1.2"/>
+            <text x="64" y="406" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="9" font-weight="600">Δ STEP · xla-step</text>
+            <text x="64" y="426" fill="#0F2547" font-family="'Geist', sans-serif" font-size="13" font-weight="600">@nnx.jit + nnx.Optimizer</text>
+            <text x="64" y="442" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="10">optimizer.update(model, grads)</text>
+          </g>
+        </g>
+
+        <!-- CENTER LEDGER ENTRIES (Exact match for every non-unchanged object) -->
+        <text data-change="CHANGED" data-target="rng-source" x="416" y="76" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#9A6F0B">CHANGED rng-source</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">Manual key dict → nnx.Rngs stream</tspan>
+        </text>
+
+        <text data-change="CHANGED" data-target="rel-rng-to-mod" x="416" y="120" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#9A6F0B">CHANGED rel-rng-to-mod</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">Passed in __init__ instead of init()</tspan>
+        </text>
+
+        <text data-change="CHANGED" data-target="module-core" x="416" y="164" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#9A6F0B">CHANGED module-core</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">Stateless spec → live Python attributes</tspan>
+        </text>
+
+        <text data-change="REMOVED" data-target="ext-params-dict" x="416" y="208" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#0F2547">REMOVED ext-params-dict</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">Eliminates detached FrozenDict tree</tspan>
+        </text>
+
+        <text data-change="REMOVED" data-target="rel-init-dict" x="416" y="252" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#0F2547">REMOVED rel-init-dict</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">No separate dummy-input init() phase</tspan>
+        </text>
+
+        <text data-change="REMOVED" data-target="rel-dict-to-xla" x="416" y="296" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#0F2547">REMOVED rel-dict-to-xla</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">No manual params dict plumbing</tspan>
+        </text>
+
+        <text data-change="ADDED" data-target="split-merge-bridge" x="416" y="340" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#9A6F0B">ADDED split-merge-bridge</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">nnx.split / nnx.merge PyTree boundary</tspan>
+        </text>
+
+        <text data-change="ADDED" data-target="rel-mod-to-bridge" x="416" y="384" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#9A6F0B">ADDED rel-mod-to-bridge</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">Extracts (GraphDef, State) automatically</tspan>
+        </text>
+
+        <text data-change="ADDED" data-target="rel-bridge-to-xla" x="416" y="428" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#9A6F0B">ADDED rel-bridge-to-xla</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">Feeds pure State PyTree to XLA</tspan>
+        </text>
+
+        <text data-change="CHANGED" data-target="xla-step" x="416" y="472" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="9.5">
+          <tspan x="416" dy="0" font-weight="600" fill="#9A6F0B">CHANGED xla-step</tspan>
+          <tspan x="416" dy="14" fill="#3B5B8C">model.apply() → @nnx.jit direct call</tspan>
+        </text>
+
+        <!-- Bottom Legend Strip -->
+        <line x1="24" y1="556" x2="1096" y2="556" stroke="#0f2547" stroke-opacity="0.16" stroke-width="1"/>
+        <rect x="24" y="572" width="14" height="14" rx="2" fill="#c59216" fill-opacity="0.12" stroke="#C59216" stroke-width="1.5"/>
+        <text x="46" y="583" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="10">Focal NNX Innovation (#C59216)</text>
+
+        <rect x="280" y="572" width="14" height="14" rx="2" fill="#F7F6F2" stroke="#0F2547" stroke-width="1.2"/>
+        <text x="302" y="583" fill="#0F2547" font-family="'Geist Mono', monospace" font-size="10">Changed Component (Δ)</text>
+
+        <rect x="500" y="572" width="14" height="14" rx="2" fill="#F7F6F2" stroke="#3B5B8C" stroke-width="1.2" stroke-dasharray="4,3"/>
+        <text x="522" y="583" fill="#3B5B8C" font-family="'Geist Mono', monospace" font-size="10">Removed Linen Ceremony (−)</text>
+      </svg>

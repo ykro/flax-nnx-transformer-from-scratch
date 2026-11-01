@@ -1,0 +1,59 @@
+########################################################################
+# FLAX NNX TRANSFORMER FROM SCRATCH — OUTSIDE JUDGE VERIFICATION SUITE #
+########################################################################
+Runtime: Python 3.12.11 | JAX 0.12.0.1 (cpu) | Flax 0.12.12 | Optax 0.2.8 | PyTorch 2.15.0
+
+========================================================================
+EXPERIMENT 01: Flax NNX Module vs PyTorch nn.Module Ergonomics
+========================================================================
+Direct attribute access : nnx_mlp.w_gate.kernel.shape = [64, 192]
+Direct attribute access : nnx_mlp.w_down.kernel.shape = [192, 64]
+Direct Param attribute  : nnx_mlp.scale.shape         = [64]
+Total nnx.Param scalars : 36,928
+Typed CallCounter state : 1 call(s) recorded in-place
+Max |NNX - PyTorch|     : 4.768e-07
+
+========================================================================
+EXPERIMENT 02: GraphDef & State Split/Merge Boundary for XLA
+========================================================================
+State PyTree leaves     : 4
+Base nnx.Param scalars  : 4,096
+LoRA nnx.LoRAParam      : 1,024
+nnx.BatchStat scalars   : 64
+Round-trip weight diff  : 0.000e+00
+Selective LoRA delta    : 0.500 (base diff=0.0e+00)
+Updated BatchStat L2    : 6.297023
+
+========================================================================
+EXPERIMENT 03: Multi-Head Causal Self-Attention with RoPE & RMSNorm
+========================================================================
+Output tensor shape     : [2, 16, 64]
+Causal prefix leakage   : 0.000e+00 (must be <= 1e-6)
+Future token response   : 27.2735
+Upper-tri attention max : 0.000e+00
+RoPE L2 norm drift      : 9.537e-07
+
+========================================================================
+EXPERIMENT 04: Compiled Mini-Transformer Training with @nnx.jit & Optax
+========================================================================
+Total trainable params  : 123,200
+Step 1 (Compile + Run)  : 449.39 ms
+Steps 2..50 Avg Latency : 3.300 ms (136.2x faster)
+Loss trajectory         : 5.3140 -> 0.0105 (-99.8%)
+Checkpoints             : {'step_1': 5.31398, 'step_10': 0.61135, 'step_20': 0.08582, 'step_30': 0.0291, 'step_40': 0.01549, 'step_50': 0.01053}
+Strictly monotonic      : True
+
+========================================================================
+EXPERIMENT 05: StableHLO Inspection & Zero-Recompilation Audit
+========================================================================
+Python traces on Step 1 : 1
+Total traces (50 steps) : 1
+Recompiles after Step 1 : 0
+StableHLO IR lines      : 1563
+stablehlo.dot_general   : 57
+stablehlo.reduce        : 29
+Compiled HLO fusions    : 281
+
+========================================================================
+VERDICT: ALL 5 FLAX NNX TRANSFORMER INVARIANTS PASSED DETERMINISTICALLY
+========================================================================

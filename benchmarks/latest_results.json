@@ -1,0 +1,102 @@
+{
+  "environment": {
+    "python": "3.12.11",
+    "jax": "0.12.0.1",
+    "jax_backend": "cpu",
+    "flax": "0.12.12",
+    "optax": "0.2.8",
+    "torch": "2.15.0"
+  },
+  "exp01_nnx_vs_torch": {
+    "d_model": 64,
+    "d_ff": 192,
+    "total_params": 36928,
+    "w_gate_shape": [
+      64,
+      192
+    ],
+    "w_up_shape": [
+      64,
+      192
+    ],
+    "w_down_shape": [
+      192,
+      64
+    ],
+    "scale_shape": [
+      64
+    ],
+    "forward_calls_count": 1,
+    "counter_leaves": 1,
+    "max_abs_diff_vs_torch": 4.76837158203125e-07,
+    "torch_eager_ms": 0.34,
+    "nnx_eager_ms": 66.721
+  },
+  "exp02_split_merge": {
+    "base_param_scalars": 4096,
+    "lora_param_scalars": 1024,
+    "batch_stat_scalars": 64,
+    "total_leaves": 4,
+    "split_merge_weight_max_diff": 0.0,
+    "base_unchanged_after_lora_edit_diff": 0.0,
+    "lora_b_applied_delta": 0.5,
+    "updated_activation_stat_l2": 6.297023,
+    "output_shape": [
+      2,
+      16,
+      64
+    ]
+  },
+  "exp03_causal_rope_attention": {
+    "d_model": 64,
+    "num_heads": 4,
+    "head_dim": 16,
+    "seq_len": 16,
+    "causal_prefix_leakage_max_diff": 0.0,
+    "future_perturbation_response_max_diff": 27.2735,
+    "upper_triangle_attention_mass": 0.0,
+    "rope_l2_norm_preservation_diff": 9.5367431640625e-07,
+    "output_shape": [
+      2,
+      16,
+      64
+    ]
+  },
+  "exp04_compiled_training": {
+    "total_params": 123200,
+    "steps": 50,
+    "initial_loss": 5.31398,
+    "final_loss": 0.01053,
+    "loss_reduction_pct": 99.8,
+    "strictly_monotonic_every_step": true,
+    "checkpoint_losses": {
+      "step_1": 5.31398,
+      "step_10": 0.61135,
+      "step_20": 0.08582,
+      "step_30": 0.0291,
+      "step_40": 0.01549,
+      "step_50": 0.01053
+    },
+    "first_step_compile_and_run_ms": 449.39,
+    "steady_state_step_ms": 3.3,
+    "speedup_after_jit": 136.2
+  },
+  "exp05_stablehlo_recompiles": {
+    "steps_executed": 50,
+    "traces_on_step_1": 1,
+    "total_traces_after_50_steps": 1,
+    "recompilations_after_step_1": 0,
+    "stablehlo_line_count": 1563,
+    "stablehlo_dot_general_count": 57,
+    "stablehlo_reduce_count": 29,
+    "compiled_hlo_fusion_mentions": 281,
+    "final_loss": 0.01053
+  },
+  "invariants": {
+    "nnx_vs_torch_parity_ok": true,
+    "split_merge_lossless_ok": true,
+    "causal_mask_zero_leakage_ok": true,
+    "monotonic_50_step_loss_ok": true,
+    "zero_recompilations_after_step_1_ok": true
+  }
+}
