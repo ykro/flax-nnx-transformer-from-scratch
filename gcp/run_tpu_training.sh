@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Ephemeral Cloud TPU v5e (v5litepod-1) / Vertex AI L4 training runner for Project: ai-experiments-487722
+# Ephemeral Cloud TPU v5e (v5litepod-1) / Vertex AI L4 training runner (set PROJECT_ID to your Google Cloud project)
 # Provisions an ephemeral TPU VM, runs the Flax NNX Transformer verification suite, and guarantees teardown.
 
 set -euo pipefail
 
-PROJECT_ID="${PROJECT_ID:-ai-experiments-487722}"
+PROJECT_ID="${PROJECT_ID:?Set PROJECT_ID to your Google Cloud project id}"
 ZONE="${ZONE:-us-central1-a}"
 TPU_NAME="flax-nnx-transformer-$(date +%s)"
 ACCELERATOR_TYPE="${ACCELERATOR_TYPE:-v5litepod-1}"
