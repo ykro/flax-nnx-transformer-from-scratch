@@ -127,13 +127,13 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
     print("=" * 72)
     print("EXPERIMENT 05: StableHLO Inspection & Zero-Recompilation Audit")
     print("=" * 72)
-    print(f"Python traces on Step 1 : {results['traces_on_step_1']}")
+    print(f"Traces before step 1    : {results['traces_on_step_1']}")
     print(f"Total traces (50 steps) : {results['total_traces_after_50_steps']}")
     print(f"Recompiles after Step 1 : {results['recompilations_after_step_1']}")
     print(f"StableHLO IR lines      : {results['stablehlo_line_count']}")
     print(f"stablehlo.dot_general   : {results['stablehlo_dot_general_count']}")
     print(f"stablehlo.reduce        : {results['stablehlo_reduce_count']}")
-    print(f"Compiled HLO fusions    : {results['compiled_hlo_fusion_mentions']}")
+    print(f"HLO lines with fusion   : {results['compiled_hlo_fusion_mentions']}")
     assert recompiles_after_warmup == 0, "Expected 0 recompilations after warmup!"
     return results
 

@@ -38,7 +38,7 @@ EXPERIMENT 04: Compiled Mini-Transformer Training with @nnx.jit & Optax
 ========================================================================
 Total trainable params  : 123,200
 Step 1 (Compile + Run)  : 449.39 ms
-Steps 2..50 Avg Latency : 3.300 ms (136.2x faster)
+Steps 2..50 Avg Latency : 3.300 ms (first step / cached step = 136.2x)
 Loss trajectory         : 5.3140 -> 0.0105 (-99.8%)
 Checkpoints             : {'step_1': 5.31398, 'step_10': 0.61135, 'step_20': 0.08582, 'step_30': 0.0291, 'step_40': 0.01549, 'step_50': 0.01053}
 Strictly monotonic      : True
@@ -46,13 +46,13 @@ Strictly monotonic      : True
 ========================================================================
 EXPERIMENT 05: StableHLO Inspection & Zero-Recompilation Audit
 ========================================================================
-Python traces on Step 1 : 1
+Traces before step 1    : 1
 Total traces (50 steps) : 1
 Recompiles after Step 1 : 0
 StableHLO IR lines      : 1563
 stablehlo.dot_general   : 57
 stablehlo.reduce        : 29
-Compiled HLO fusions    : 281
+HLO lines with fusion   : 281
 
 ========================================================================
 VERDICT: ALL 5 FLAX NNX TRANSFORMER INVARIANTS PASSED DETERMINISTICALLY

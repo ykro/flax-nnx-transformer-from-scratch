@@ -10,7 +10,7 @@ authors = [
 ]
 dependencies = [
   "jax>=0.4.30",
-  "flax>=0.10.0",
+  "flax>=0.12.0",
   "optax>=0.2.2",
   "torch>=2.2.0",
   "numpy>=1.26.0",

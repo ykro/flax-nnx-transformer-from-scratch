@@ -215,7 +215,7 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
     print(f"Step 1 (Compile + Run)  : {results['first_step_compile_and_run_ms']:.2f} ms")
     print(
         f"Steps 2..{steps} Avg Latency : {results['steady_state_step_ms']:.3f} ms "
-        f"({results['speedup_after_jit']}x faster)"
+        f"(first step / cached step = {results['speedup_after_jit']}x)"
     )
     print(
         f"Loss trajectory         : {results['initial_loss']:.4f} -> "

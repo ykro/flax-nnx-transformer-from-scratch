@@ -24,7 +24,7 @@ El modelo implementado en `experiments/03_causal_attention_rope.py` y `experimen
 
 ## El Puente `nnx.split` → `OpenXLA` → `nnx.merge`
 
-Los compiladores como `XLA` exigen funciones matemáticamente puras sin efectos secundarios ocultos. Cuando decoramos un paso de entrenamiento con `@nnx.jit`, `Flax NNX` ejecuta automáticamente `nnx.split(model)` para extraer un `(GraphDef, State)` puro, compila un único kernel fusionado en `StableHLO` y sincroniza los tensores actualizados de regreso a las referencias en memoria con `nnx.merge` / `nnx.update`.
+Los compiladores como `XLA` exigen funciones matemáticamente puras sin efectos secundarios ocultos. Cuando decoramos un paso de entrenamiento con `@nnx.jit`, `Flax NNX` ejecuta automáticamente `nnx.split(model)` para extraer un `(GraphDef, State)` puro, baja la función a `StableHLO`, XLA la compila en un solo programa (con cientos de fusiones en CPU) y sincroniza los tensores actualizados de regreso a las referencias en memoria con `nnx.merge` / `nnx.update`.
 
 ![Flax NNX Split-JIT-Merge Lifecycle](diagrams/03-split-jit-merge.svg)
 
@@ -32,15 +32,15 @@ Los compiladores como `XLA` exigen funciones matemáticamente puras sin efectos 
 
 ## Experimentos Reproducibles y Resultados Verificados (`verify_transformer.py`)
 
-Todos los experimentos fueron ejecutados y auditados con `Python 3.12.11`, `JAX 0.12.0.1`, `Flax 0.12.12`, `Optax 0.2.8` y `PyTorch 2.15.0`.
+Todos los experimentos se ejecutaron en CPU (los tiempos varían entre corridas; las invariantes son deterministas) con `Python 3.12.11`, `JAX 0.12.0.1`, `Flax 0.12.12`, `Optax 0.2.8` y `PyTorch 2.15.0`.
 
 | Experimento | Archivo | Invariante Verificado | Resultado Real Medido |
 | :--- | :--- | :--- | :--- |
 | **01. NNX vs PyTorch** | `experiments/01_nnx_module_vs_torch.py` | Paridad numérica entre `nnx.Module` y `torch.nn.Module` (`36,928` parámetros) | `max_abs_diff = 4.768e-07` |
 | **02. Split / Merge** | `experiments/02_graphdef_split_merge.py` | Reconstrucción sin pérdida `(GraphDef, State)` y mutación selectiva `nnx.LoRAParam` | `weight_diff = 0.000e+00`, `LoRA delta = 0.500` |
 | **03. Causal RoPE** | `experiments/03_causal_attention_rope.py` | Invarianza causal ante perturbación de tokens futuros y preservación de norma L2 en `RoPE` | `prefix_leakage = 0.000e+00`, `RoPE drift = 9.537e-07` |
-| **04. Compiled Step** | `experiments/04_compiled_train_step.py` | Convergencia estrictamente monótona en 50 pasos con `@nnx.jit` y `optax.adamw` (`123,200` params) | `Loss: 5.3140 -> 0.0105 (-99.8%)`, `136.2x` speedup post-JIT |
-| **05. StableHLO Audit** | `experiments/05_inspect_stablehlo_recompiles.py` | Cero recompilaciones tras el paso 1 e inspección de fusiones `StableHLO` / `HLO` | `1 trace / 50 steps`, `0 recompiles`, `57 dot_general`, `281 fusions` |
+| **04. Compiled Step** | `experiments/04_compiled_train_step.py` | Convergencia estrictamente monótona en 50 pasos con `@nnx.jit` y `optax.adamw` (`123,200` params) | `Loss: 5.3140 -> 0.0105 (-99.8%)` sobre un batch fijo; primer paso con tracing y compilación `449.39 ms` contra `3.3 ms` por paso en caché (cociente `136.2x`, costo de compilar una vez) |
+| **05. StableHLO Audit** | `experiments/05_inspect_stablehlo_recompiles.py` | Cero recompilaciones tras el paso 1 e inspección de fusiones `StableHLO` / `HLO` | `1 trace / 50 steps` (la traza ocurre en `.lower()`), `0 recompiles`, `57 dot_general`, `281` líneas de HLO que mencionan `fusion` |
 
 ### Salida Real de Terminal (`benchmarks/terminal_output.txt`)
 
@@ -85,7 +85,7 @@ EXPERIMENT 04: Compiled Mini-Transformer Training with @nnx.jit & Optax
 ========================================================================
 Total trainable params  : 123,200
 Step 1 (Compile + Run)  : 449.39 ms
-Steps 2..50 Avg Latency : 3.300 ms (136.2x faster)
+Steps 2..50 Avg Latency : 3.300 ms (first step / cached step = 136.2x)
 Loss trajectory         : 5.3140 -> 0.0105 (-99.8%)
 Checkpoints             : {'step_1': 5.31398, 'step_10': 0.61135, 'step_20': 0.08582, 'step_30': 0.0291, 'step_40': 0.01549, 'step_50': 0.01053}
 Strictly monotonic      : True
@@ -93,13 +93,13 @@ Strictly monotonic      : True
 ========================================================================
 EXPERIMENT 05: StableHLO Inspection & Zero-Recompilation Audit
 ========================================================================
-Python traces on Step 1 : 1
+Traces before step 1    : 1
 Total traces (50 steps) : 1
 Recompiles after Step 1 : 0
 StableHLO IR lines      : 1563
 stablehlo.dot_general   : 57
 stablehlo.reduce        : 29
-Compiled HLO fusions    : 281
+HLO lines with fusion   : 281
 
 ========================================================================
 VERDICT: ALL 5 FLAX NNX TRANSFORMER INVARIANTS PASSED DETERMINISTICALLY
@@ -149,3 +149,5 @@ make all
 # Ejecutar entrenamiento on-demand en Cloud TPU v5e (tu proyecto en `PROJECT_ID`) con auto-teardown
 bash gcp/run_tpu_training.sh
 ```
+
+El script de TPU está listo, pero este repo todavía no publica cifras medidas en TPU.
