@@ -20,6 +20,7 @@ State PyTree leaves     : 4
 Base nnx.Param scalars  : 4,096
 LoRA nnx.LoRAParam      : 1,024
 nnx.BatchStat scalars   : 64
+Param-first filter      : LoRA=0 Param=5,120 (LoRAParam is a Param subclass)
 Round-trip weight diff  : 0.000e+00
 Selective LoRA delta    : 0.500 (base diff=0.0e+00)
 Updated BatchStat L2    : 6.297023
@@ -37,23 +38,26 @@ RoPE L2 norm drift      : 9.537e-07
 EXPERIMENT 04: Compiled Mini-Transformer Training with @nnx.jit & Optax
 ========================================================================
 Total trainable params  : 123,200
-Step 1 (Compile + Run)  : 449.39 ms
-Steps 2..50 Avg Latency : 3.300 ms (first step / cached step = 136.2x)
+Step 1 (Compile + Run)  : 440.03 ms
+Steps 2..50 median      : 4.387 ms (first step / cached step = 100.3x)
 Loss trajectory         : 5.3140 -> 0.0105 (-99.8%)
 Checkpoints             : {'step_1': 5.31398, 'step_10': 0.61135, 'step_20': 0.08582, 'step_30': 0.0291, 'step_40': 0.01549, 'step_50': 0.01053}
 Strictly monotonic      : True
+Counter after 1 call    : jax.jit=0 | nnx.jit=1
 
 ========================================================================
 EXPERIMENT 05: StableHLO Inspection & Zero-Recompilation Audit
 ========================================================================
-Traces before step 1    : 1
+Traces at .lower()      : 1
 Total traces (50 steps) : 1
-Recompiles after Step 1 : 0
+Retraces after .lower() : 0
 StableHLO IR lines      : 1563
 stablehlo.dot_general   : 57
 stablehlo.reduce        : 29
 HLO lines with fusion   : 281
+Python int attr change  : 2 traces (int lives in the GraphDef)
 
 ========================================================================
+CPU: Apple M1 Max (10 cores) | 1-min load average 8.48 before, 9.0 after (timings in exp. 04 depend on it)
 VERDICT: ALL 5 FLAX NNX TRANSFORMER INVARIANTS PASSED DETERMINISTICALLY
 ========================================================================

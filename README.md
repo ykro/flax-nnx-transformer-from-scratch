@@ -146,6 +146,9 @@ python experiments/05_inspect_stablehlo_recompiles.py
 # Ejecutar los 5 experimentos, el Outside Judge (verify_transformer.py), pytest y ruff
 make all
 
+# Lo mismo, y además el reporte de cada experimento, todo de una sola corrida
+make report
+
 # Ejecutar entrenamiento on-demand en Cloud TPU v5e (tu proyecto en `PROJECT_ID`) con auto-teardown
 bash gcp/run_tpu_training.sh
 ```

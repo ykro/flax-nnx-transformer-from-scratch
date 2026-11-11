@@ -16,7 +16,9 @@ import contextlib
 import importlib.util
 import io
 import json
+import os
 import platform
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -37,9 +39,36 @@ def _load_module(name: str, rel_path: str) -> Any:
     return mod
 
 
+def _cpu_model() -> str:
+    """Human-readable CPU model (platform.processor() only says 'arm' on macOS)."""
+    try:
+        if platform.system() == "Darwin":
+            out = subprocess.run(
+                ["sysctl", "-n", "machdep.cpu.brand_string"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return out.stdout.strip()
+        for line in Path("/proc/cpuinfo").read_text(encoding="utf-8").splitlines():
+            if line.lower().startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return platform.processor() or "unknown"
+
+
+def _load1() -> float | None:
+    try:
+        return round(os.getloadavg()[0], 2)
+    except OSError:
+        return None
+
+
 def run_verification() -> dict[str, Any]:
     BENCHMARKS_DIR.mkdir(parents=True, exist_ok=True)
     buffer = io.StringIO()
+    load_before = _load1()
 
     with contextlib.redirect_stdout(buffer):
         print("########################################################################")
@@ -68,6 +97,11 @@ def run_verification() -> dict[str, Any]:
         ).run_experiment(steps=50)
         print()
         print("========================================================================")
+        load_after = _load1()
+        print(
+            f"CPU: {_cpu_model()} ({os.cpu_count()} cores) | 1-min load average "
+            f"{load_before} before, {load_after} after (timings in exp. 04 depend on it)"
+        )
         print("VERDICT: ALL 5 FLAX NNX TRANSFORMER INVARIANTS PASSED DETERMINISTICALLY")
         print("========================================================================")
 
@@ -82,6 +116,10 @@ def run_verification() -> dict[str, Any]:
             "flax": flax.__version__,
             "optax": optax.__version__,
             "torch": torch.__version__,
+            "cpu_model": _cpu_model(),
+            "cpu_count": os.cpu_count(),
+            "load_average_1min_before": load_before,
+            "load_average_1min_after": load_after,
         },
         "exp01_nnx_vs_torch": exp01,
         "exp02_split_merge": exp02,

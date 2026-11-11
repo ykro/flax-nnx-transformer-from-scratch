@@ -2,9 +2,12 @@ PYTHON ?= $(shell if [ -x ../../.venv-shared/bin/python ]; then echo ../../.venv
 PYTEST ?= $(shell if [ -x ../../.venv-shared/bin/pytest ]; then echo ../../.venv-shared/bin/pytest; else command -v pytest; fi)
 RUFF ?= $(shell if [ -x ../../.venv-shared/bin/ruff ]; then echo ../../.venv-shared/bin/ruff; else command -v ruff; fi)
 
-.PHONY: all experiments verify test lint security clean
+.PHONY: all report experiments verify test lint security clean
 
 all: lint experiments verify test security
+
+# One run for the video: lint, tests and the judge (prints every experiment and writes benchmarks/)
+report: lint test verify
 
 experiments:
 	$(PYTHON) experiments/01_nnx_module_vs_torch.py

@@ -33,6 +33,34 @@ MiniTransformerLM = _exp04.MiniTransformerLM
 make_synthetic_next_token_batch = _exp04.make_synthetic_next_token_batch
 
 
+class _ScaledByInt(nnx.Module):
+    """A plain Python int attribute is static: it is part of the GraphDef."""
+
+    def __init__(self) -> None:
+        self.factor = 3
+        self.w = nnx.Param(jnp.ones((4,), dtype=jnp.float32))
+
+    def __call__(self, x: jax.Array) -> jax.Array:
+        return x * self.w[...] * self.factor
+
+
+def python_int_retrace_demo() -> int:
+    traces = {"count": 0}
+
+    @nnx.jit
+    def forward(mod: _ScaledByInt, x: jax.Array) -> jax.Array:
+        traces["count"] += 1
+        return mod(x)
+
+    mod = _ScaledByInt()
+    x = jnp.ones((4,), dtype=jnp.float32)
+    forward(mod, x)
+    forward(mod, x)
+    mod.factor = 4
+    forward(mod, x)
+    return traces["count"]
+
+
 def run_experiment(steps: int = 50) -> dict[str, Any]:
     vocab_size = 128
     rngs = nnx.Rngs(params=42)
@@ -88,6 +116,7 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
         m_graphdef, m_state, opt_graphdef, opt_state, inputs, targets
     )
     stablehlo_text = lowered.as_text("stablehlo")
+    traces_at_lower = trace_counter["count"]
     compiled = lowered.compile()
     hlo_text = compiled.as_text()
 
@@ -114,6 +143,7 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
 
     results = {
         "steps_executed": steps,
+        "traces_at_lower": traces_at_lower,
         "traces_on_step_1": traces_after_step_1,
         "total_traces_after_50_steps": total_traces,
         "recompilations_after_step_1": recompiles_after_warmup,
@@ -122,19 +152,26 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
         "stablehlo_reduce_count": reduce_ops,
         "compiled_hlo_fusion_mentions": fusion_count,
         "final_loss": round(float(loss), 5),
+        "python_int_attr_change_traces": python_int_retrace_demo(),
     }
 
     print("=" * 72)
     print("EXPERIMENT 05: StableHLO Inspection & Zero-Recompilation Audit")
     print("=" * 72)
-    print(f"Traces before step 1    : {results['traces_on_step_1']}")
+    print(f"Traces at .lower()      : {results['traces_at_lower']}")
     print(f"Total traces (50 steps) : {results['total_traces_after_50_steps']}")
-    print(f"Recompiles after Step 1 : {results['recompilations_after_step_1']}")
+    print(f"Retraces after .lower() : {results['recompilations_after_step_1']}")
     print(f"StableHLO IR lines      : {results['stablehlo_line_count']}")
     print(f"stablehlo.dot_general   : {results['stablehlo_dot_general_count']}")
     print(f"stablehlo.reduce        : {results['stablehlo_reduce_count']}")
     print(f"HLO lines with fusion   : {results['compiled_hlo_fusion_mentions']}")
+    print(
+        f"Python int attr change  : {results['python_int_attr_change_traces']} traces "
+        "(int lives in the GraphDef)"
+    )
     assert recompiles_after_warmup == 0, "Expected 0 recompilations after warmup!"
+    assert traces_at_lower == 1
+    assert results["python_int_attr_change_traces"] == 2
     return results
 
 

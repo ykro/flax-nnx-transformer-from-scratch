@@ -8,6 +8,7 @@ Combines Token Embeddings, stacked TransformerDecoderBlocks (RMSNorm + CausalRoP
 from __future__ import annotations
 
 import importlib.util
+import statistics
 import time
 from pathlib import Path
 from typing import Any
@@ -150,6 +151,32 @@ def train_step(
     return loss
 
 
+class _StepCounter(nnx.Variable):
+    """Typed state used to show where in-place mutations survive a jit boundary."""
+
+
+class _CountingScale(nnx.Module):
+    def __init__(self) -> None:
+        self.calls = _StepCounter(jnp.array(0, dtype=jnp.int32))
+
+    def __call__(self, x: jax.Array) -> jax.Array:
+        self.calls[...] = self.calls[...] + 1
+        return x * 2.0
+
+
+def mutation_across_jit_boundary() -> dict[str, int]:
+    """Plain jax.jit accepts an NNX module but drops its mutation; @nnx.jit writes it back."""
+    x = jnp.ones((2,), dtype=jnp.float32)
+    plain = _CountingScale()
+    jax.jit(lambda mod, v: mod(v))(plain, x)
+    wrapped = _CountingScale()
+    nnx.jit(lambda mod, v: mod(v))(wrapped, x)
+    return {
+        "plain_jax_jit_counter": int(plain.calls[...]),
+        "nnx_jit_counter": int(wrapped.calls[...]),
+    }
+
+
 def run_experiment(steps: int = 50) -> dict[str, Any]:
     vocab_size = 128
     rngs = nnx.Rngs(params=42)
@@ -179,13 +206,15 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
     first_step_ms = (time.perf_counter() - t_first_start) * 1000.0
     loss_arrays.append(first_loss_arr)
 
-    t_steady_start = time.perf_counter()
+    # Per-step wall time for steps 2..N (each synced), summarized with the median
+    steady_times_ms: list[float] = []
     for _ in range(1, steps):
+        t0 = time.perf_counter()
         loss_val = train_step(model, optimizer, inputs, targets)
+        jax.block_until_ready(loss_val)
+        steady_times_ms.append((time.perf_counter() - t0) * 1000.0)
         loss_arrays.append(loss_val)
-    jax.block_until_ready(loss_arrays[-1])
-    steady_total_ms = (time.perf_counter() - t_steady_start) * 1000.0
-    steady_step_ms = steady_total_ms / max(1, (steps - 1))
+    steady_step_ms = statistics.median(steady_times_ms)
     losses: list[float] = [float(x) for x in loss_arrays]
 
     # Check monotonic decrease across 10-step checkpoints
@@ -205,6 +234,8 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
         "checkpoint_losses": checkpoint_losses,
         "first_step_compile_and_run_ms": round(first_step_ms, 2),
         "steady_state_step_ms": round(steady_step_ms, 3),
+        "steady_state_stat": "median of steps 2..N",
+        "mutation_counter_after_one_call": mutation_across_jit_boundary(),
         "speedup_after_jit": round(first_step_ms / steady_step_ms, 1),
     }
 
@@ -214,7 +245,7 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
     print(f"Total trainable params  : {results['total_params']:,}")
     print(f"Step 1 (Compile + Run)  : {results['first_step_compile_and_run_ms']:.2f} ms")
     print(
-        f"Steps 2..{steps} Avg Latency : {results['steady_state_step_ms']:.3f} ms "
+        f"Steps 2..{steps} median      : {results['steady_state_step_ms']:.3f} ms "
         f"(first step / cached step = {results['speedup_after_jit']}x)"
     )
     print(
@@ -223,7 +254,13 @@ def run_experiment(steps: int = 50) -> dict[str, Any]:
     )
     print(f"Checkpoints             : {checkpoint_losses}")
     print(f"Strictly monotonic      : {strictly_monotonic_every_step}")
+    mc = results["mutation_counter_after_one_call"]
+    print(
+        f"Counter after 1 call    : jax.jit={mc['plain_jax_jit_counter']} "
+        f"| nnx.jit={mc['nnx_jit_counter']}"
+    )
     assert strictly_monotonic_every_step, "Expected strictly monotonic loss decrease!"
+    assert mc == {"plain_jax_jit_counter": 0, "nnx_jit_counter": 1}
     return results
 
 

@@ -5,7 +5,11 @@
     "jax_backend": "cpu",
     "flax": "0.12.12",
     "optax": "0.2.8",
-    "torch": "2.15.0"
+    "torch": "2.15.0",
+    "cpu_model": "Apple M1 Max",
+    "cpu_count": 10,
+    "load_average_1min_before": 8.48,
+    "load_average_1min_after": 9.0
   },
   "exp01_nnx_vs_torch": {
     "d_model": 64,
@@ -29,12 +33,14 @@
     "forward_calls_count": 1,
     "counter_leaves": 1,
     "max_abs_diff_vs_torch": 4.76837158203125e-07,
-    "torch_eager_ms": 0.34,
-    "nnx_eager_ms": 66.721
+    "torch_eager_ms": 0.308,
+    "nnx_eager_ms": 55.902
   },
   "exp02_split_merge": {
     "base_param_scalars": 4096,
     "lora_param_scalars": 1024,
+    "param_first_filter_lora_scalars": 0,
+    "param_first_filter_param_scalars": 5120,
     "batch_stat_scalars": 64,
     "total_leaves": 4,
     "split_merge_weight_max_diff": 0.0,
@@ -77,12 +83,18 @@
       "step_40": 0.01549,
       "step_50": 0.01053
     },
-    "first_step_compile_and_run_ms": 449.39,
-    "steady_state_step_ms": 3.3,
-    "speedup_after_jit": 136.2
+    "first_step_compile_and_run_ms": 440.03,
+    "steady_state_step_ms": 4.387,
+    "steady_state_stat": "median of steps 2..N",
+    "mutation_counter_after_one_call": {
+      "plain_jax_jit_counter": 0,
+      "nnx_jit_counter": 1
+    },
+    "speedup_after_jit": 100.3
   },
   "exp05_stablehlo_recompiles": {
     "steps_executed": 50,
+    "traces_at_lower": 1,
     "traces_on_step_1": 1,
     "total_traces_after_50_steps": 1,
     "recompilations_after_step_1": 0,
@@ -90,7 +102,8 @@
     "stablehlo_dot_general_count": 57,
     "stablehlo_reduce_count": 29,
     "compiled_hlo_fusion_mentions": 281,
-    "final_loss": 0.01053
+    "final_loss": 0.01053,
+    "python_int_attr_change_traces": 2
   },
   "invariants": {
     "nnx_vs_torch_parity_ok": true,

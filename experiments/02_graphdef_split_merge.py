@@ -51,6 +51,16 @@ def run_experiment() -> dict[str, Any]:
     )
 
     lora_scalar_count = sum(int(x.size) for x in jax.tree_util.tree_leaves(lora_params))
+    # Filters apply in order and nnx.LoRAParam subclasses nnx.Param: Param-first swallows LoRA
+    _, param_first_params, param_first_lora, _ = nnx.split(
+        model, nnx.Param, nnx.LoRAParam, nnx.BatchStat
+    )
+    param_first_lora_scalars = sum(
+        int(x.size) for x in jax.tree_util.tree_leaves(param_first_lora)
+    )
+    param_first_param_scalars = sum(
+        int(x.size) for x in jax.tree_util.tree_leaves(param_first_params)
+    )
     base_scalar_count = sum(int(x.size) for x in jax.tree_util.tree_leaves(base_params))
     stat_scalar_count = sum(int(x.size) for x in jax.tree_util.tree_leaves(batch_stats))
 
@@ -92,6 +102,8 @@ def run_experiment() -> dict[str, Any]:
     results = {
         "base_param_scalars": base_scalar_count,
         "lora_param_scalars": lora_scalar_count,
+        "param_first_filter_lora_scalars": param_first_lora_scalars,
+        "param_first_filter_param_scalars": param_first_param_scalars,
         "batch_stat_scalars": stat_scalar_count,
         "total_leaves": len(jax.tree_util.tree_leaves(full_state)),
         "split_merge_weight_max_diff": weight_diff,
@@ -108,6 +120,10 @@ def run_experiment() -> dict[str, Any]:
     print(f"Base nnx.Param scalars  : {results['base_param_scalars']:,}")
     print(f"LoRA nnx.LoRAParam      : {results['lora_param_scalars']:,}")
     print(f"nnx.BatchStat scalars   : {results['batch_stat_scalars']:,}")
+    print(
+        f"Param-first filter      : LoRA={param_first_lora_scalars:,} "
+        f"Param={param_first_param_scalars:,} (LoRAParam is a Param subclass)"
+    )
     print(f"Round-trip weight diff  : {results['split_merge_weight_max_diff']:.3e}")
     print(
         f"Selective LoRA delta    : {results['lora_b_applied_delta']:.3f} "
@@ -116,6 +132,7 @@ def run_experiment() -> dict[str, Any]:
     print(f"Updated BatchStat L2    : {results['updated_activation_stat_l2']:.6f}")
     assert weight_diff == 0.0
     assert base_unchanged_diff == 0.0
+    assert param_first_lora_scalars == 0
     return results
 
 
