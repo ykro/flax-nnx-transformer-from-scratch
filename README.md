@@ -159,8 +159,12 @@ python experiments/05_inspect_stablehlo_recompiles.py
 
 ```bash
 # ruff, pytest (incluidos los fragmentos de practica/) y el Outside Judge (verify_transformer.py),
-# que corre los 5 experimentos una sola vez, imprime su reporte y escribe benchmarks/
+# que corre los 5 experimentos una sola vez, imprime su reporte y guarda la salida en runs/
+# (ignorada por git, así que tu clon queda limpio)
 make all
+
+# Lo mismo, pero actualiza la copia que vive en el repo, benchmarks/
+make report
 
 # Revisión de secretos (necesita gitleaks instalado)
 make security

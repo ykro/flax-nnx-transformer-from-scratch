@@ -6,9 +6,11 @@ RUFF ?= $(shell if [ -x ../../.venv-shared/bin/ruff ]; then echo ../../.venv-sha
 
 all: lint test verify
 
-# Same as all: lint, tests (practica/ included) and the judge, which prints every experiment
-# and writes benchmarks/. Secret scan apart: make security (needs gitleaks)
-report: lint test verify
+# all: lint, tests (practica/ included) and the judge, which prints every experiment and
+# writes its outputs to runs/ (ignored by git). report: the same, but refreshes the copy kept
+# in benchmarks/. Secret scan apart: make security (needs gitleaks)
+report: lint test
+	JUDGE_OUT_DIR=benchmarks $(PYTHON) verify_transformer.py
 
 experiments:
 	$(PYTHON) experiments/01_nnx_module_vs_torch.py
@@ -30,4 +32,4 @@ security:
 	gitleaks detect --source . --no-git
 
 clean:
-	rm -rf __pycache__ .pytest_cache .ruff_cache
+	rm -rf __pycache__ .pytest_cache .ruff_cache runs

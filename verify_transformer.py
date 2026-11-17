@@ -7,7 +7,9 @@ Executes all 5 experiments deterministically, verifies numerical invariants:
 4. Monotonic loss decrease over 50 compiled steps (`initial_loss -> final_loss`)
 5. Zero recompilations after warmup step 1 (`recompilations_after_step_1 == 0`)
 
-Writes real outputs to `benchmarks/latest_results.json` and `benchmarks/terminal_output.txt`.
+Writes real outputs to `runs/latest_results.json` and `runs/terminal_output.txt`, which git
+ignores, so `make all` leaves a clean clone. `make report` writes them to `benchmarks/`,
+the copy kept in the repo.
 """
 
 from __future__ import annotations
@@ -28,7 +30,7 @@ import optax
 import torch
 
 ROOT_DIR = Path(__file__).resolve().parent
-BENCHMARKS_DIR = ROOT_DIR / "benchmarks"
+BENCHMARKS_DIR = ROOT_DIR / os.environ.get("JUDGE_OUT_DIR", "runs")
 
 
 def _load_module(name: str, rel_path: str) -> Any:
@@ -137,6 +139,7 @@ def run_verification() -> dict[str, Any]:
 
     assert all(summary["invariants"].values()), f"Invariant failure: {summary['invariants']}"
 
+    BENCHMARKS_DIR.mkdir(parents=True, exist_ok=True)
     (BENCHMARKS_DIR / "latest_results.json").write_text(
         json.dumps(summary, indent=2) + "\n", encoding="utf-8"
     )
