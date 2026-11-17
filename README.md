@@ -121,7 +121,22 @@ pip install --upgrade pip
 pip install -e ".[dev]"
 ```
 
-### 2. Recorrido guiado paso a paso (Orden de Onboarding)
+### 2. Práctica a mano (los fragmentos del video de práctica)
+
+La carpeta `practica/` tiene los fragmentos cortos que se escriben en el video de práctica. `01_copiar_roto.py` falla a propósito: el error es parte del ejercicio. Escríbelos tú antes de abrirlos.
+
+```bash
+python practica/01_modulo.py        # un nnx.Module como en PyTorch: SwiGLU, nnx.Rngs y un contador con tipo propio
+python practica/01_copiar_roto.py   # RuntimeError, nnx.Linear guarda el kernel como entrada por salida
+python practica/01_copiar.py        # copiar con .T: la misma salida que torch.nn.Linear
+python practica/02_split.py         # nnx.split por tipo: un GraphDef sin arreglos y un State por filtro
+python practica/02_jit.py           # jax.jit pierde la mutación del contador; nnx.jit la conserva
+python practica/03_fuga.py          # sin la máscara causal el modelo copia el futuro y la loss cae (usa minilm.py)
+python practica/04_trazas.py        # una forma nueva y un entero de Python en el módulo vuelven a trazar
+python practica/04_variable.py      # el mismo valor en una nnx.Variable cambia sin volver a trazar
+```
+
+### 3. Recorrido guiado paso a paso (Orden de Onboarding)
 
 ```bash
 # Paso 1 — Ergonomía de nnx.Module frente a torch.nn.Module y paridad de pesos
@@ -140,14 +155,15 @@ python experiments/04_compiled_train_step.py
 python experiments/05_inspect_stablehlo_recompiles.py
 ```
 
-### 3. Verificación completa y Ejecución en Cloud TPU v5e
+### 4. Verificación completa y Ejecución en Cloud TPU v5e
 
 ```bash
-# Ejecutar los 5 experimentos, el Outside Judge (verify_transformer.py), pytest y ruff
+# ruff, pytest (incluidos los fragmentos de practica/) y el Outside Judge (verify_transformer.py),
+# que corre los 5 experimentos una sola vez, imprime su reporte y escribe benchmarks/
 make all
 
-# Lo mismo, y además el reporte de cada experimento, todo de una sola corrida
-make report
+# Revisión de secretos (necesita gitleaks instalado)
+make security
 
 # Ejecutar entrenamiento on-demand en Cloud TPU v5e (tu proyecto en `PROJECT_ID`) con auto-teardown
 bash gcp/run_tpu_training.sh

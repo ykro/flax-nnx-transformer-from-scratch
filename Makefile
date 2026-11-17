@@ -4,9 +4,10 @@ RUFF ?= $(shell if [ -x ../../.venv-shared/bin/ruff ]; then echo ../../.venv-sha
 
 .PHONY: all report experiments verify test lint security clean
 
-all: lint experiments verify test security
+all: lint test verify
 
-# One run for the video: lint, tests and the judge (prints every experiment and writes benchmarks/)
+# Same as all: lint, tests (practica/ included) and the judge, which prints every experiment
+# and writes benchmarks/. Secret scan apart: make security (needs gitleaks)
 report: lint test verify
 
 experiments:
