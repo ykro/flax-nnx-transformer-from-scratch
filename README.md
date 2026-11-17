@@ -123,7 +123,7 @@ pip install -e ".[dev]"
 
 ### 2. Práctica a mano (los fragmentos del video de práctica)
 
-La carpeta `practica/` tiene los fragmentos cortos que se escriben en el video de práctica. `01_copiar_roto.py` falla a propósito: el error es parte del ejercicio. Escríbelos tú antes de abrirlos.
+La carpeta `practica/` tiene los fragmentos cortos que se escriben en el [video de práctica](https://youtu.be/0IFZJ6tWw-s). `01_copiar_roto.py` falla a propósito: el error es parte del ejercicio. Escríbelos tú antes de abrirlos.
 
 ```bash
 python practica/01_modulo.py        # un nnx.Module como en PyTorch: SwiGLU, nnx.Rngs y un contador con tipo propio
