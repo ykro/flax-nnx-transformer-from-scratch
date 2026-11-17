@@ -115,7 +115,7 @@ VERDICT: ALL 5 FLAX NNX TRANSFORMER INVARIANTS PASSED DETERMINISTICALLY
 ```bash
 git clone https://github.com/ykro/flax-nnx-transformer-from-scratch.git
 cd flax-nnx-transformer-from-scratch
-python3 -m venv .venv
+python3.12 -m venv .venv   # Python 3.11 a 3.14; con 3.15 todavía no hay wheel de tensorstore, que Flax necesita
 source .venv/bin/activate
 pip install --upgrade pip
 pip install -e ".[dev]"
